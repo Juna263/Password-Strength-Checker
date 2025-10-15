@@ -148,7 +148,7 @@ def analyze(password: str, do_hibp=True):
     # Return all results as a structured dictionary
     return {
         "password": password,
-        "entropy (THTS)": ent,
+        "entropy": ent,
         "rules_score": rules,
         "rating": rating,
         "hibp_count": hibp_count
