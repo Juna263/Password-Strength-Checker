@@ -17,6 +17,9 @@ import sys
 import os
 import random
 import time
+import secrets
+import string
+
 
 #CONFIGURATION
 #API location for HaveIBeenPwned passwords.
@@ -25,6 +28,11 @@ HIBP_RANGE_URL = "https://api.pwnedpasswords.com/range/{}"
 #adding common passwords and wordlist
 DEFAULT_WORDLIST = "wordlist.txt"
 COMMON_PASSWORDS_FILE = "common_passwords.txt"
+
+
+###
+
+
 
 #UTILITIES
 def load_set_from_file(path):
