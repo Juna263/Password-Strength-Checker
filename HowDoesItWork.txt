@@ -1,0 +1,80 @@
+How the Password Strength Checker & Generator Works: A Step-by-Step Guide
+
+This document explains the internal process of the program, from the moment you type a command to the final output.
+
+OVERVIEW
+The program performs three main functions:
+1. Analyzes a given password for strength and security risks.
+2. Generates a secure, random passphrase.
+3. Strengthens an existing password by making it longer and more complex.
+
+PART 1: ANALYZING A PASSWORD (--check or -c)
+
+When you ask the program to check a password, it goes through the following stages:
+
+Step 1: Initial Calculation & Rule Checking
+The program first performs a local analysis of the password without using the internet.
+- Character Diversity (Entropy): It checks which types of characters are used (lowercase letters, uppercase letters, digits, symbols) and calculates a "character pool size." It then uses this to compute Entropy (measured in bits). A higher entropy means the password is harder to guess through brute force.
+- Rule-based Scoring: It gives the password points based on common security practices:
+  * +1 point for being at least 8 characters long.
+  * +1 more point for being at least 12 characters long.
+  * +1 point for containing lowercase letters.
+  * +1 point for containing uppercase letters.
+  * +1 point for containing digits.
+  * +1 point for containing symbols.
+  * -4 points if the password is found in a list of common passwords (e.g., "password123").
+
+Step 2: Overall Rating
+- The program combines the Entropy score and the Rule-based score into a single, easy-to-understand rating: Weak, Moderate, or Strong.
+
+Step 3: Breach Database Check (HIBP API)
+- To check if your password has been exposed in a known data breach, the program uses the "Have I Been Pwned" service.
+- For complete privacy, it never sends your actual password. Instead:
+  1. It calculates a SHA-1 hash of your password.
+  2. It sends only the first 5 characters of this hash to the HIBP API.
+  3. The API returns a list of all breached password hashes that start with those same 5 characters.
+  4. The program then checks the rest of your hash locally against this list to see if there's a match.
+- The result shows as "Not found in breaches," "Found X times," or "Unavailable" if the service is down.
+
+Step 4: Generating Stronger Suggestions (If Needed)
+- If the password is rated "Weak" or "Moderate," the program automatically generates 3 stronger versions of it.
+- How it strengthens a password:
+  1. Analysis: It identifies what character types (lowercase, uppercase, digits, symbols) are missing from your original password.
+  2. Enforcement: It adds at least one of each missing character type to ensure diversity.
+  3. Length Extension: It adds more random characters to ensure the final password is at least 12 characters long.
+  4. Shuffling: Finally, it shuffles all the characters to avoid predictable patterns (like just adding numbers at the end).
+- These new passwords contain all your original elements but are longer, more diverse, and randomly organized.
+
+Step 5: Displaying the Results
+- The program prints a clean report showing the password's length, entropy, rule score, overall rating, breach status, and the list of stronger suggestions.
+
+PART 2: GENERATING A PASSPHRASE (--generate or -g)
+
+This function creates an easy-to-remember but hard-to-guess passphrase.
+
+Step 1: Load the Word List
+- The program reads a file (wordlist.txt) containing a long list of simple, common words (e.g., "horse," "battery," "staple," "window," "forest").
+- If the file is missing, it uses a built-in list of words as a backup.
+
+Step 2: Select and Combine Words
+- It randomly selects a specified number of words (default is 4) from the list.
+- It joins these words together with a separator (default is a hyphen -) to create a passphrase like "correct-horse-battery-staple".
+
+PART 3: STRENGTHENING A SPECIFIC PASSWORD (--strengthen or -s)
+
+This is a dedicated function for the strengthening engine described in Part 1.
+
+- You provide an existing password.
+- The program runs it through the strengthening algorithm (Step 4 of the Analysis process) to create 3 new, stronger variants.
+- It displays these options along with their calculated entropy, allowing you to choose one you like.
+
+COMMAND LINE USAGE SUMMARY
+
+- To Check a Password:
+  python3 script_name.py --check "YourPassword123"
+
+- To Generate a Passphrase:
+  python3 script_name.py --generate
+
+- To Get Stronger Versions of a Password:
+  python3 script_name.py --strengthen "YourPassword123"
